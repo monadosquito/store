@@ -1,5 +1,10 @@
 import { ExpressDriver } from 'adapter/expressDriver'
+import { PostgresqlRepo } from 'adapter/postgresqlRepo'
+
+import { Client, QueryConfig } from 'pg'
 
 
-const drv = new ExpressDriver
+const repo = new PostgresqlRepo({ user: 'postgres' })
+repo.connect()
+const drv = new ExpressDriver<Client>(repo)
 drv.run()

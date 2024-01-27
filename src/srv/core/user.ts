@@ -5,7 +5,7 @@ type User = {
 
 type UserSession = {
     sessionId: string
-    userI: number
+    userId: number
 }
 
 

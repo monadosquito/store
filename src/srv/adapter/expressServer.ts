@@ -1,66 +1,65 @@
 import { User, UserSession } from 'core/user'
 import { IServer } from 'core/port/server'
 
-import e from 'express'
+import { Application, Request, Response } from 'express'
 import { v4 } from 'uuid'
 
+import { IRepository } from 'core/port/repository'
 
-class ExpressServer implements IServer {
-    users: User[]
-    userSessions: UserSession[]
-    app: e.Application
 
-    constructor(users: User[], userSessions: UserSession[], app: any) {
-        this.users = users
-        this.userSessions = userSessions
+class ExpressServer<Conn> implements IServer {
+    app: Application
+    repository: IRepository<Conn>
+
+    constructor(app: any, repo: IRepository<Conn>) {
         this.app = app
+        this.repository = repo 
     }
 
     signUp() {
-        this.app.post('/sign-up', (req: e.Request, res: e.Response) => {
-            const user = req.body
-            const { name, password } = user
-            const userExists = this.users.some(user => {
-                return (user.name === name && user.password === password)
-            })
-            if (userExists) {
-                res.status(409).send()
-                return
+        this.app.post(
+            '/sign-up',
+            async (req: Request<User>, res: Response) => {
+                const user = req.body
+                const { name, password } = user
+                await this.repository.connect()
+                const userExists = await this.repository.doesUserExist(user)
+                if (userExists) {
+                    res.status(409).send()
+                    return
+                }
+                await this.repository.addUser(user)
+                res.status(201).send()
             }
-            this.users.push(user)
-            res.status(201).send()
-        })
+        )
     }
     signIn() {
-        this.app.post('/sign-in', (req: e.Request, res: e.Response) => {
+        this.app.post('/sign-in', async (req: Request, res: Response) => {
             const user = req.body
             const { name, password } = user
-            const userExists = this.users.some(user => {
-                return (user.name === name && user.password === password)
-            })
-            if (!userExists) {
+            await this.repository.connect()
+            const userId = await this.repository.selectUserId(user)
+            if (!userId) {
                 res.status(404).send()
                 return
             }
-            const sessId = v4()
-            const userI = this.users.findIndex(user => {
-                user.name === name && user.password === password
-            })
-            const sess = { sessionId: sessId, userI: userI }
-            this.userSessions.push(sess)
-            res.cookie('sessId', sessId).status(204).send()
+            await this.repository.deleteUserSessionByUserId(userId)
+            const sessionId = v4()
+            await this.repository.addUserSession({ sessionId, userId })
+            res.cookie('sessId', sessionId).status(204).send()
         })
     }
     signOut() {
-        this.app.post('/auth/sign-out', (req: e.Request, res: e.Response) => {
-            const sessId = req.cookies.sessId
-            const sessI = this.userSessions.findIndex (({ sessionId }) => {
-                sessionId === sessId
-            })
-            this.userSessions.splice(sessI, 1)
-            res.clearCookie('sessId')
-            res.status(204).send()
-        })
+        this.app.post(
+            '/auth/sign-out',
+            async (req: Request, res: Response) => {
+                const userSessId = req.cookies.sessId
+                await this.repository.connect()
+                await this.repository.deleteUserSessionById(userSessId)
+                res.clearCookie('sessId')
+                res.status(204).send()
+            }
+        )
     }
 }
 

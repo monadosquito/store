@@ -2,12 +2,19 @@ import { User, UserSession } from 'core/user'
 import { IDriver } from 'core/port/driver'
 import { ExpressServer } from 'adapter/expressServer'
 
-import e from 'express'
+import e, { Request, Response, NextFunction } from 'express'
 import cookieParser from 'cookie-parser'
 
+import { IRepository } from 'core/port/repository'
 
-const users: User[] = []
-const userSessions: UserSession[] = []
+
+type ExpressMid = (
+    request: Request,
+    response: Response,
+    next: NextFunction,
+) => Promise<void>
+
+
 const app = e()
 
 
@@ -15,37 +22,42 @@ app.use(e.json())
 app.use(cookieParser())
 
 
-const authMid = (req: e.Request, res: e.Response, next: e.NextFunction) => {
-    const authRequired = req.url.startsWith("/auth")
-    if (authRequired) {
-        const sessId = req.cookies.sessId
-        if (!sessId) {
-            res.status(401).send()
-            return
-        } 
-        const userSessExists = userSessions.some((userSession: UserSession) => {
-            return (userSession.sessionId === sessId)
-        })
-        if (!userSessExists) {
-            res.status(401).send()
+class ExpressDriver<Conn> implements IDriver<ExpressMid> {
+    repository: IRepository<Conn>
+
+    constructor(repo: IRepository<Conn>) {
+        this.repository = repo
+    }
+    
+    async authenticate (req: Request, res: Response, next: NextFunction) {
+        const authRequired = req.url.startsWith("/auth")
+        if (authRequired) {
+            const sessId = req.cookies.sessId
+            if (!sessId) {
+                res.status(401).send()
+                return
+            } 
+            await this.repository.connect()
+            const userSessExists = await this.repository
+                                             .doesUserSessionExist(sessId)
+            console.log(userSessExists)
+            if (!userSessExists) {
+                res.status(401).send()
+                return
+            }
+            next ()
             return
         }
         next ()
-        return
     }
-    next ()
-}
 
-app.use(authMid)
-
-
-class ExpressDriver implements IDriver {
     run() {
-        const srv = new ExpressServer(users, userSessions, app)
+        const srv = new ExpressServer(app, this.repository)
         srv.signUp()
         srv.signIn()
         srv.signOut()
 
+        app.use(this.authenticate)
         app.listen(8000)
     }
 }
