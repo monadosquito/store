@@ -55,7 +55,7 @@ class ExpressDriver<Conn> implements IDriver<ExpressMid> {
         next ()
     }
 
-    run() {
+    run(port: number) {
         const srv = new ExpressServer(
             this.protectedEndpointPrefix,
             app,
