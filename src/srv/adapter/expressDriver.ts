@@ -1,6 +1,6 @@
 import { User, UserSession } from 'core/user'
 import { IDriver } from 'core/port/driver'
-import { ExpressServer } from 'adapters/expressServer'
+import { ExpressServer } from 'adapter/expressServer'
 
 import e from 'express'
 import cookieParser from 'cookie-parser'

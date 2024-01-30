@@ -1,4 +1,4 @@
-import { ExpressDriver } from 'adapters/expressDriver'
+import { ExpressDriver } from 'adapter/expressDriver'
 
 
 const drv = new ExpressDriver
