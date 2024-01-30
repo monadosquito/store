@@ -23,7 +23,7 @@ class ExpressServer<Conn> implements IServer {
             '/sign-up',
             async (req: Request<User>, res: Response) => {
                 const user = req.body
-                const { name, password } = user
+                const { name, password, email } = user
                 await this.repository.connect()
                 const userExists = await this.repository.doesUserExist(user)
                 if (userExists) {
@@ -38,7 +38,7 @@ class ExpressServer<Conn> implements IServer {
     signIn() {
         this.app.post('/sign-in', async (req: Request, res: Response) => {
             const user = req.body
-            const { name, password } = user
+            const { name, password, email } = user
             await this.repository.connect()
             const userId = await this.repository.selectUserId(user)
             if (!userId) {
