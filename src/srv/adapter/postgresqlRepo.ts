@@ -1,4 +1,4 @@
-import { User, UserSession } from 'core/user'
+import { User, UserSession, validate } from 'core/user'
 import { IRepository } from 'core/port/repository'
 
 import { Client, QueryConfig, QueryResult } from 'pg'
@@ -20,17 +20,20 @@ class PostgresqlRepo implements IRepository<Client> {
     end() {
         this.client?.end()
     }
-    addUser({ name, password }: User) {
-        this.client?.query(
-            'INSERT INTO user_ (name, password) VALUES ($1, $2)',
-            [ name, password ]
-        )
+    addUser(user: User) {
+        const validUser = validate(user)
+        if (validUser !== null) {
+            const { name, password } = validUser
+            this.client?.query(
+                'INSERT INTO user_ (name, password) VALUES ($1, $2)',
+                [ name, password ]
+            )
+        }
     }
     async doesUserExist({ name, password }: User) {
         const qryRes = await this.client?.query(
-            'SELECT EXISTS\
-                (SELECT FROM user_ WHERE name = $1 AND password = $2)',
-            [ name, password ]
+            'SELECT EXISTS (SELECT FROM user_ WHERE name = $1)',
+            [ name ]
         )
         return (qryRes?.rows[0]?.exists ?? false)
     }

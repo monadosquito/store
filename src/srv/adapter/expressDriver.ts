@@ -1,4 +1,4 @@
-import { User, UserSession } from 'core/user'
+import { UserSession } from 'core/user'
 import { IDriver } from 'core/port/driver'
 import { ExpressServer } from 'adapter/expressServer'
 
@@ -65,7 +65,7 @@ class ExpressDriver<Conn> implements IDriver<ExpressMid> {
         srv.signIn()
         srv.signOut()
 
-        app.use(this.authenticate)
+        // app.use(this.authenticate)
         app.listen(8000)
     }
 }

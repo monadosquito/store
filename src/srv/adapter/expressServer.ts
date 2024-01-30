@@ -1,4 +1,4 @@
-import { User, UserSession } from 'core/user'
+import { User, UserSession, validate } from 'core/user'
 import { IServer } from 'core/port/server'
 
 import { Application, Request, Response } from 'express'
@@ -25,12 +25,17 @@ class ExpressServer<Conn> implements IServer {
                 const user = req.body
                 const { name, password, email } = user
                 await this.repository.connect()
-                const userExists = await this.repository.doesUserExist(user)
+                const validUser = validate(user)
+                if (validUser === null) {
+                    res.status(422).send()
+                    return
+                }
+                const userExists = await this.repository.doesUserExist(validUser)
                 if (userExists) {
                     res.status(409).send()
                     return
                 }
-                await this.repository.addUser(user)
+                await this.repository.addUser(validUser)
                 res.status(201).send()
             }
         )
