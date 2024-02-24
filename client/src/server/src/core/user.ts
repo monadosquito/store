@@ -261,7 +261,7 @@ const callEach =
 
 const validate = (user: Entity): LabeledError[] => {
     const { password, email } = user
-    const emailErrors: Predicate[] = [
+    const emailPredicates: Predicate[] = [
             includes
                 ('@')
                 ({
@@ -308,7 +308,7 @@ const validate = (user: Entity): LabeledError[] => {
                     error: validationError.user.email.simpleWith,
                 }),
         ]
-    const passwordErrors: Predicate[] = [
+    const passwordPredicates: Predicate[] = [
             longerThan
                 (configuration.userPasswordMinLength)
                 ({
@@ -321,16 +321,18 @@ const validate = (user: Entity): LabeledError[] => {
                     error: validationError.user.password.notEmpty,
                 }),
         ]
+    const emailErrors = callEach<string, LabeledError | null>
+                             (emailPredicates)
+                             (email)
+    const passwordErrors = callEach<string, LabeledError | null>
+                               (passwordPredicates)
+                               (password)
     switch (user.tag) {
         case 'user':
-            // return clearErrors([ ...emailErrors, ...passwordErrors ])
-            const emailErrors_ = callEach<string, LabeledError | null>(emailErrors)(email)
-            const passwordErrors_ = callEach<string, LabeledError | null>(passwordErrors)(password)
-            const errors = [ ...emailErrors_, ...passwordErrors_ ]
-            return clearErrors(errors)
+            return clearErrors([ ...emailErrors, ...passwordErrors ])
         case 'namedUser':
             const { name_ } = user
-            const nameErrors: Predicate[] = [
+            const namePredicates: Predicate[] = [
                 longerThan
                     (configuration.userNameMinLength)
                     ({
@@ -365,11 +367,12 @@ const validate = (user: Entity): LabeledError[] => {
                         error: validationError.namedUser.name_.simpleWith,
                     }),
             ]
-            const emailErrors__ = callEach<string, LabeledError | null>(emailErrors)(email)
-            const passwordErrors__ = callEach<string, LabeledError | null>(passwordErrors)(password)
-            const nameErrors__ = callEach<string, LabeledError | null>(nameErrors)(name_)
-            const errors_ = [ ...emailErrors__, ...passwordErrors__, ...nameErrors__ ]
-            return clearErrors(errors_)
+            const nameErrors = callEach<string, LabeledError | null>
+                                   (namePredicates)
+                                   (name_)
+            return clearErrors(
+                [ ...emailErrors, ...passwordErrors, ...nameErrors ]
+            )
     }
 }
 
