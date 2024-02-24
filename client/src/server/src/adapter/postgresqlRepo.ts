@@ -1,6 +1,7 @@
 import {
     User,
     NamedUser,
+    IdUser,
     Entity,
     UserSession,
     validate,
@@ -45,12 +46,12 @@ class PostgresqlRepo implements IRepository<Client> {
         )
         return (qryRes?.rows[0]?.exists ?? false)
     }
-    async selectUserId({ email, password }: User) {
+    async selectUser(email: string): Promise<IdUser | undefined> {
         const qryRes = await this.client?.query(
-            '(SELECT id FROM user_ WHERE email = $1 AND password = $2)',
-            [ email, password ]
+            'SELECT * FROM user_ WHERE email = $1',
+            [ email ]
         )
-        return (qryRes?.rows[0]?.id ?? null)
+        return qryRes?.rows[0]
     }
     addUserSession({ sessionId, userId }: UserSession) {
         this.client?.query(

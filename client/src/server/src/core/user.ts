@@ -46,6 +46,8 @@ type Label = {
 
 type Predicate = (fieldValue: string) => LabeledError | null
 
+type IdUser = User & { id: number }
+
 const label: Label = {
     user: {
         email: 'E-Mail',
@@ -373,5 +375,5 @@ const validate = (user: Entity): LabeledError[] => {
 
 const isValid = (e: Entity): boolean => validate(e).length === 0
 
-export type { Endpoint, Entity , Label, LabeledError, User, NamedUser, UserSession }
+export type { Endpoint, Entity , Label, LabeledError, User, NamedUser, IdUser, UserSession }
 export { label, validate, isValid }

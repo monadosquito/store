@@ -1,9 +1,10 @@
 import { configuration } from 'core/configuration'
-import { User, UserSession, validate } from 'core/user'
+import { NamedUser, UserSession, isValid } from 'core/user'
 import { IServer } from 'core/port/server'
 
 import { Application, Request, Response } from 'express'
 import { v4 } from 'uuid'
+import { hash, compare } from 'bcrypt'
 
 import { IRepository } from 'core/port/repository'
 
@@ -20,11 +21,11 @@ class ExpressServer<Conn> implements IServer {
     signUp() {
         this.app.post(
             '/sign-up',
-            async (req: Request<User>, res: Response) => {
+            async (req: Request<NamedUser>, res: Response) => {
                 const user = req.body
                 await this.repository.connect()
-                const validUser = validate(user)
-                if (!validUser) {
+                const userIsValid = isValid(user)
+                if (!userIsValid) {
                     res.status(422).send()
                     return
                 }
@@ -33,23 +34,34 @@ class ExpressServer<Conn> implements IServer {
                     res.status(409).send()
                     return
                 }
-                await this.repository.addUser(user)
+                const { password } = user
+                const passwordHash = await hash(password, 10)
+                await this.repository.addUser(
+                    {...user, password: passwordHash }
+                )
                 res.status(201).send()
             }
         )
     }
     signIn() {
         this.app.post('/sign-in', async (req: Request, res: Response) => {
-            const user = req.body
+            const { email, password } = req.body
             await this.repository.connect()
-            const userId = await this.repository.selectUserId(user)
-            if (!userId) {
+            const user = await this.repository.selectUser(email)
+            console.log(user)
+            if (!user) {
                 res.status(404).send()
                 return
             }
-            await this.repository.deleteUserSessionByUserId(userId)
+            const { id, password: passwordHash } = user
+            const passwordsMatch = await compare(password, passwordHash)
+            if (!passwordsMatch) {
+                res.status(403).send()
+                return
+            }
+            await this.repository.deleteUserSessionByUserId(id)
             const sessionId = v4()
-            await this.repository.addUserSession({ sessionId, userId })
+            await this.repository.addUserSession({ sessionId, id })
             res.cookie('sessId', sessionId).status(204).send()
         })
     }

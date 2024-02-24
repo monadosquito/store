@@ -8,7 +8,7 @@ interface IRepository<Client> {
     end: () => void
     addUser: (user: User) => void
     doesUserExist: (user: User) => Promise<boolean>
-    selectUserId: (user: User) => Promise<number | null>
+    selectUser: (email: string) => Promise<NamedUser | undefined>
     addUserSession: (userSession: UserSession) => void
     doesUserSessionExist: (id: string) => Promise<boolean>
     deleteUserSessionById: (id: string) => void

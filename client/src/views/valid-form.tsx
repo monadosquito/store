@@ -1,6 +1,7 @@
 import { Endpoint, User, NamedUser, Entity, Label, LabeledError, label, validate } from '../server/src/core/user'
 
 import React, { useEffect, useState } from 'react'
+import { Form } from 'react-router-dom'
 
 
 type FormProps = {
@@ -71,7 +72,8 @@ const ValidForm: React.FC<FormProps> = (
                 })
             }
         }
-    }, [ submitted, ent, validErrs.length, endpoint, leg, subBtnLab ])
+        setSubmitted(false)
+    }, [ submitted ])
 
     const handleInput = (
             fieldName: string,
@@ -90,7 +92,7 @@ const ValidForm: React.FC<FormProps> = (
         <div className='valid-form root__valid-form'>
             <form className='form valid-form__form' onSubmit={ event => {
                 event.preventDefault()
-                setSubmitted(!submitted)
+                setSubmitted(true)
             }}>
                 <fieldset className='form__fields'>
                     <legend> {leg} </legend>
