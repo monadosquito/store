@@ -7,5 +7,5 @@ import { Client, QueryConfig } from 'pg'
 import { Entity, validate } from 'core/user'
 const repo = new PostgresqlRepo({ user: 'postgres' })
 repo.connect()
-const drv = new ExpressDriver<Client>('auth', repo)
+const drv = new ExpressDriver<Client>(repo)
 drv.run(8000)

@@ -1,3 +1,4 @@
+import { configuration } from 'core/configuration'
 import { User, UserSession, validate } from 'core/user'
 import { IServer } from 'core/port/server'
 
@@ -10,12 +11,10 @@ import { IRepository } from 'core/port/repository'
 class ExpressServer<Conn> implements IServer {
     app: Application
     repository: IRepository<Conn>
-    protectedEndpointPrefix: string
 
-    constructor(protEndpointPrefix: string, app: any, repo: IRepository<Conn>) {
+    constructor(app: any, repo: IRepository<Conn>) {
         this.app = app
         this.repository = repo 
-        this.protectedEndpointPrefix = protEndpointPrefix
     }
 
     signUp() {
@@ -55,8 +54,8 @@ class ExpressServer<Conn> implements IServer {
         })
     }
     signOut() {
-        this.app.post(
-            '/' + this.protectedEndpointPrefix + '/sign-out',
+        this.app.get(
+            '/' + configuration.protectedEndpointPrefix + '/sign-out',
             async (req: Request, res: Response) => {
                 const userSessId = req.cookies.sessId
                 await this.repository.connect()

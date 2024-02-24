@@ -2,6 +2,7 @@ import { User, validate } from './server/src/core/user'
 
 import { SignUp } from './views/pages/sign-up'
 import { SignIn } from './views/pages/sign-in'
+import { SignOut } from './views/pages/sign-out'
 import './App.css';
 import React, { useEffect, useState } from 'react'
 import {
@@ -13,7 +14,7 @@ import {
 
 
 const router = createBrowserRouter(createRoutesFromElements(
-    <Route path='/'>
+    <Route path='/' element={<SignOut/>}>
         <Route path='/sign-up' element={<SignUp/>} />
         <Route path='/sign-in' element={<SignIn/>} />
     </Route>

@@ -1,3 +1,4 @@
+import { configuration } from 'core/configuration'
 import { UserSession } from 'core/user'
 import { IDriver } from 'core/port/driver'
 import { ExpressServer } from 'adapter/expressServer'
@@ -24,16 +25,14 @@ app.use(cookieParser())
 
 class ExpressDriver<Conn> implements IDriver<ExpressMid> {
     repository: IRepository<Conn>
-    protectedEndpointPrefix: string
 
-    constructor(protEndpointPrefix: string, repo: IRepository<Conn>) {
+    constructor(repo: IRepository<Conn>) {
         this.repository = repo
-        this.protectedEndpointPrefix = protEndpointPrefix
     }
     
     async authenticate (req: Request, res: Response, next: NextFunction) {
         const authRequired = req.url.startsWith(
-            '/' + this.protectedEndpointPrefix
+            '/' + configuration.protectedEndpointPrefix
         )
         if (authRequired) {
             const sessId = req.cookies.sessId
@@ -56,11 +55,7 @@ class ExpressDriver<Conn> implements IDriver<ExpressMid> {
     }
 
     run(port: number) {
-        const srv = new ExpressServer(
-            this.protectedEndpointPrefix,
-            app,
-            this.repository,
-        )
+        const srv = new ExpressServer(app, this.repository)
         srv.signUp()
         srv.signIn()
         srv.signOut()

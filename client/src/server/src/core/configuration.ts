@@ -1,4 +1,5 @@
 type Configuration = {
+    protectedEndpointPrefix: string,
     userEmailMinLength: 3,
     userEmailMaxLength: 320,
     userNameMinLength: 3,
@@ -7,6 +8,7 @@ type Configuration = {
 }
 
 const configuration: Configuration = {
+    protectedEndpointPrefix: 'auth',
     userEmailMinLength: 3,
     userEmailMaxLength: 320,
     userNameMinLength: 3,
