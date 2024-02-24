@@ -60,12 +60,11 @@ const ValidForm: React.FC<FormProps> = ({ endpoint, initEnt }) => {
     useEffect(() => {
         if (submitted) {
             if (validErrs.length === 0) {
-                const fetchProm: Promise<Response> = fetch(endpoint, {
+                fetch(endpoint, {
                     method: 'POST',
                     body: JSON.stringify(ent),
                     headers: { 'Content-Type': 'application/json' },
                 })
-                fetchProm.then((resp) => console.log(resp.status))
             }
         }
     }, [ submitted ])

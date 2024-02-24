@@ -1,4 +1,11 @@
-import { User, UserSession, validate } from 'core/user'
+import {
+    User,
+    NamedUser,
+    Entity,
+    UserSession,
+    validate,
+    isValid,
+} from 'core/user'
 import { IRepository } from 'core/port/repository'
 
 import { Client, QueryConfig, QueryResult } from 'pg'
@@ -20,9 +27,10 @@ class PostgresqlRepo implements IRepository<Client> {
     end() {
         this.client?.end()
     }
-    addUser(user: User) {
-        const validUser = validate(user)
-        if (validUser !== null) {
+    addUser(namedUser: NamedUser) {
+        const user: Entity = { tag: 'namedUser', ...namedUser }
+        const userIsValid = isValid(user)
+        if (userIsValid) {
             const { name_, password, email } = user
             this.client?.query(
                 'INSERT INTO user_ (name, password, email) VALUES ($1, $2, $3)',
@@ -30,17 +38,17 @@ class PostgresqlRepo implements IRepository<Client> {
             )
         }
     }
-    async doesUserExist({ name_ }: User) {
+    async doesUserExist({ email }: User) {
         const qryRes = await this.client?.query(
-            'SELECT EXISTS (SELECT FROM user_ WHERE name = $1)',
-            [ name_ ]
+            'SELECT EXISTS (SELECT FROM user_ WHERE email = $1)',
+            [ email ]
         )
         return (qryRes?.rows[0]?.exists ?? false)
     }
-    async selectUserId({ name_, password }: User) {
+    async selectUserId({ email, password }: User) {
         const qryRes = await this.client?.query(
-            '(SELECT id FROM user_ WHERE name = $1 AND password = $2)',
-            [ name_, password ]
+            '(SELECT id FROM user_ WHERE email = $1 AND password = $2)',
+            [ email, password ]
         )
         return (qryRes?.rows[0]?.id ?? null)
     }

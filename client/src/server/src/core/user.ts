@@ -17,22 +17,11 @@ type LabeledError = {
     error: string
 }
 
-type UserField = keyof User
-
 type NamedUser = {
     name_: string
 } & User
 
-type NamedUser_ = 'email' | 'name_' | 'password'
-
-type NamedUserField = keyof NamedUser
-
 type Entity = User & { tag: 'user' } | NamedUser & { tag: 'namedUser' }
-
-type EntityName = keyof Label
-
-type EntityField = User | NamedUserField
-
 
 type UserLabel = {
     email: string
@@ -80,50 +69,23 @@ type ValidationError = {
         password: PasswordValidationError
     },
 }
-type PasswordValidationError_ = {
-    includes: null
-    longerThan: null
-    notEmpty: null
-    shorterThan: null
-    simpleWith: null
-    startsWithNonNumber: null
-}
 
-
-type EmailValidationError_ = {
-    includes: string
-    longerThan: null
-    notEmpty: null
-    shorterThan: null
-    simpleWith: null
-    startsWithNonNumber: null
-}
+type PasswordValidation = 'longerThan' | 'notEmpty'
 
 type PasswordValidationError = {
-    includes: null
-    longerThan: string
-    notEmpty: string
-    notDeliminatesWith: null
-    shorterThan: null
-    simpleWith: null
+    [V in Extract<Validation, PasswordValidation>]: string
 }
+
+type NameValidation = Exclude<Validation, 'includes'>
 
 type NameValidationError = {
-    includes: null
-    longerThan: string
-    notEmpty: string
-    notDeliminatesWith: string
-    shorterThan: string
-    simpleWith: string
+    [V in Extract<Validation, NameValidation>]: string
 }
 
+type EmailValidation = Validation
+
 type EmailValidationError = {
-    includes: string
-    longerThan: string
-    notEmpty: string
-    notDeliminatesWith: string
-    shorterThan: string
-    simpleWith: string
+    [V in Extract<Validation, EmailValidation>]: string
 }
 
 type UserSession = {
@@ -137,7 +99,6 @@ type Validation = 'includes'
                 | 'notDeliminatesWith'
                 | 'shorterThan'
                 | 'simpleWith'
-                | 'startsWithNonNumber'
 
 
 const userEmail: EmailValidationError = {
@@ -173,7 +134,6 @@ const userEmail: EmailValidationError = {
     ,
 }
 const userPassword: PasswordValidationError = {
-    includes: null,
     longerThan:
         'User '
         + label.user.password
@@ -182,9 +142,6 @@ const userPassword: PasswordValidationError = {
         + ' characters long.'
     ,
     notEmpty: 'User ' + label.user.password + ' must not be empty.',
-    notDeliminatesWith: null,
-    shorterThan: null,
-    simpleWith: null,
 }
 
 
@@ -199,7 +156,6 @@ const validationError: ValidationError = {
         email: userEmail,
         password: userPassword,
         name_: {
-            includes: null,
             longerThan: 
                 'User '
                 + label.namedUser.name_
@@ -415,6 +371,7 @@ const validate = (user: Entity): LabeledError[] => {
     }
 }
 
+const isValid = (e: Entity): boolean => validate(e).length === 0
 
 export type { Endpoint, Entity , Label, LabeledError, User, NamedUser, UserSession }
-export { label, validate }
+export { label, validate, isValid }
