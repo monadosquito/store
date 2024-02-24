@@ -12,7 +12,12 @@ const initUser: Entity = {
 
 const SignUp = () =>
     <main>
-        <ValidForm endpoint='/sign-up' initEnt={initUser} />
+        <ValidForm
+            endpoint='/sign-in'
+            leg="Fill in new user's data"
+            subBtnLab='Sign up'
+            initEnt={initUser}
+        />
     </main>
 
 

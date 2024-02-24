@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react'
 
 type FormProps = {
     endpoint: Endpoint,
+    leg: string,
+    subBtnLab: string,
     initEnt: Entity,
 }
 
@@ -52,7 +54,9 @@ function field<L extends keyof Label, F extends keyof Label[L]>(
     )
 }
 
-const ValidForm: React.FC<FormProps> = ({ endpoint, initEnt }) => {
+const ValidForm: React.FC<FormProps> = (
+    { endpoint, leg, subBtnLab, initEnt }
+) => {
     const [ ent, setEnt ] = useState(initEnt)
     const [ submitted, setSubmitted ] = useState(false)
     const initValidErrs: LabeledError[] = []
@@ -67,7 +71,7 @@ const ValidForm: React.FC<FormProps> = ({ endpoint, initEnt }) => {
                 })
             }
         }
-    }, [ submitted ])
+    }, [ submitted, ent, validErrs.length, endpoint, leg, subBtnLab ])
 
     const handleInput = (
             fieldName: string,
@@ -89,7 +93,7 @@ const ValidForm: React.FC<FormProps> = ({ endpoint, initEnt }) => {
                 setSubmitted(!submitted)
             }}>
                 <fieldset className='form__fields'>
-                    <legend> Fill in new user's data </legend>
+                    <legend> {leg} </legend>
                     { Object.keys(ent).filter(k => k !== 'tag').map(
                         fieldName => {
                             const isValid = validErrs.findIndex(
@@ -114,7 +118,7 @@ const ValidForm: React.FC<FormProps> = ({ endpoint, initEnt }) => {
                         }
                     ) }
                 </fieldset>
-                <input type='submit' value='Sign up' />
+                <input type='submit' value={subBtnLab} />
             </form>
             {valStat(validErrs)}
         </div>

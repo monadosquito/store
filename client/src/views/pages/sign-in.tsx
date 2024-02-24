@@ -6,7 +6,14 @@ import { ValidForm } from '../valid-form'
 const initUser: Entity = { tag: 'user', email: '', password: '' }
 
 const SignIn = () => 
-    <main> <ValidForm endpoint='/sign-in' initEnt={initUser} /> </main>
+    <main>
+        <ValidForm
+            endpoint='/sign-in'
+            leg="Fill in user's data"
+            subBtnLab='Sign in'
+            initEnt={initUser}
+        />
+    </main>
 
 
 export { SignIn }
