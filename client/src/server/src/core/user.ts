@@ -55,6 +55,8 @@ type Label = {
     namedUser: NamedUserLabel_
 }
 
+type Predicate = (fieldValue: string) => LabeledError | null
+
 const label: Label = {
     user: {
         email: 'E-Mail',
@@ -233,11 +235,10 @@ const isLetter = (letter: string) => {
 const isNumber = (number: string) => {
     return (number.match(/[1-9]/gi)?.length ?? 0) === 1
 }
-const simpleWith = (
-    characters: string[],
-    labeledError: LabeledError,
-    fieldValue: string,
-): LabeledError | null => {
+const simpleWith =
+    (characters: string[]) =>
+    (labeledError: LabeledError) =>
+    (fieldValue: string): LabeledError | null => {
     const simpleWith = [...fieldValue].every(
         character => characters.some(againstCharacter => {
             return againstCharacter === character
@@ -247,188 +248,170 @@ const simpleWith = (
     )
     return simpleWith ? null : labeledError
 }
-const includes = (
-    characters: string,
-    labeledError: LabeledError,
-    fieldValue: string
-): LabeledError | null => {
+
+const includes =
+    (characters: string) =>
+    (labeledError: LabeledError) =>
+    (fieldValue: string): LabeledError | null => {
     const includesEach = [...characters].every(c => fieldValue.includes(c))
     return includesEach ? null : labeledError
 }
-const longerThan = (
-    length: number,
-    labeledError: LabeledError,
-    fieldValue: string,
-): LabeledError | null => {
+
+const longerThan =
+    (length: number) =>
+    (labeledError: LabeledError) =>
+    (fieldValue: string): LabeledError | null => {
     const longEnough = fieldValue.length >= length
     return longEnough ? null : labeledError
 }
-const notEmpty = (
-    labeledError: LabeledError,
-    fieldValue: string
-): LabeledError | null => {
+const notEmpty =
+    (labeledError: LabeledError) =>
+    (fieldValue: string): LabeledError | null => {
     const empty = fieldValue === ''
     return !empty ? null : labeledError
 }
-const shorterThan = (
-    length: number,
-    labeledError: LabeledError,
-    fieldValue: string,
-): LabeledError | null => {
+const shorterThan =
+    (length: number) =>
+    (labeledError: LabeledError) =>
+    (fieldValue: string): LabeledError | null => {
     const tooLong = fieldValue.length <= length
     return tooLong ? null : labeledError
 }
+
+const notDeliminatesWith =
+    (direction: Direction) =>
+    (predicates: CharacterPredicate[]) =>
+    (characters: string[]) =>
+    (labeledError: LabeledError) =>
+    (fieldValue: string): LabeledError | null => {
+    const characterIndex = direction === 'left' ? 0 : fieldValue.length - 1
+    const character = fieldValue.charAt(characterIndex)
+    const startsWith = predicates.some(p => p(character))
+                     || characters.some(c => c === character)
+    return !startsWith ? null : labeledError
+}
+
 const clearErrors = (errors: (LabeledError | null)[]): LabeledError[] =>
     [ ...new Set(errors) ].flatMap(
         (e: LabeledError | null) => e !== null ? [e] : []
     )
 
+const callEach =
+    <I, O>(fs: ((x: I) => O)[]) =>
+    (x: I): O[] =>
+    fs.map((f: any) => f(x))
+
 const validate = (user: Entity): LabeledError[] => {
-    const notDeliminatesWith = (
-        direction: Direction,
-        predicates: CharacterPredicate[],
-        characters: string[],
-        labeledError: LabeledError,
-        fieldValue: string,
-    ): LabeledError | null => {
-        const characterIndex = direction === 'left' ? 0 : fieldValue.length - 1
-        const character = fieldValue.charAt(characterIndex)
-        const startsWith = predicates.some(p => p(character))
-                         || characters.some(c => c === character)
-        return !startsWith ? null : labeledError
-    }
     const { password, email } = user
-    const emailErrors: (LabeledError | null)[] = [
-            includes(
-                '@',
-                {
+    const emailErrors: Predicate[] = [
+            includes
+                ('@')
+                ({
                     fieldName: 'email',
                     error: validationError.user.email.includes,
-                },
-                email,
-            ),
-            longerThan(
-                configuration.userEmailMinLength,
-                {
+                }),
+            longerThan
+                (configuration.userEmailMinLength)
+                ({
                     fieldName: 'email',
                     error: validationError.user.email.longerThan,
-                },
-                email,
-            ),
-            notDeliminatesWith(
-                'left',
-                [isNumber],
-                ['.'],
-                {
+                }),
+            notDeliminatesWith
+                ('left')
+                ([isNumber])
+                (['.'])
+                ({
                     fieldName: 'email',
                     error: validationError.user.email.notDeliminatesWith,
-                },
-                email,
-            ),
-            notDeliminatesWith(
-                'right',
-                [],
-                ['.'],
-                {
+                }),
+            notDeliminatesWith
+                ('right')
+                ([])
+                (['.'])
+                ({
                     fieldName: 'email',
                     error: validationError.user.email.notDeliminatesWith,
-                },
-                email,
-            ),
-            notEmpty(
-                {
+                }),
+            notEmpty
+                ({
                     fieldName: 'email',
                     error: validationError.user.email.notEmpty,
-                },
-                email,
-            ),
-            shorterThan(
-                configuration.userEmailMaxLength,
-                {
+                }),
+            shorterThan
+                (configuration.userEmailMaxLength)
+                ({
                     fieldName: 'email',
                     error: validationError.user.email.shorterThan,
-                },
-                email,
-            ),
-            simpleWith(
-                [ ..."!#$%&'*+-./=?^_`{|}~@" ],
-                {
+                }),
+            simpleWith
+                ([ ..."!#$%&'*+-./=?^_`{|}~@" ])
+                ({
                     fieldName: 'email',
                     error: validationError.user.email.simpleWith,
-                },
-                email,
-            ),
+                }),
         ]
-    const passwordErrors: (LabeledError | null)[] = [
-            longerThan(
-                configuration.userPasswordMinLength,
-                {
+    const passwordErrors: Predicate[] = [
+            longerThan
+                (configuration.userPasswordMinLength)
+                ({
                     fieldName: 'password',
                     error: validationError.user.password.longerThan,
-                },
-                password,
-            ),
-            notEmpty(
-                {
+                }),
+            notEmpty
+                ({
                     fieldName: 'password',
                     error: validationError.user.password.notEmpty,
-                },
-                password,
-            ),
+                }),
         ]
     switch (user.tag) {
         case 'user':
-            return clearErrors([ ...emailErrors, ...passwordErrors ])
+            // return clearErrors([ ...emailErrors, ...passwordErrors ])
+            const emailErrors_ = callEach<string, LabeledError | null>(emailErrors)(email)
+            const passwordErrors_ = callEach<string, LabeledError | null>(passwordErrors)(password)
+            const errors = [ ...emailErrors_, ...passwordErrors_ ]
+            return clearErrors(errors)
         case 'namedUser':
-            const { name_, password, email } = user
-            const nameErrors: (LabeledError | null)[] = [
-                longerThan(
-                    configuration.userNameMinLength,
-                    {
+            const { name_ } = user
+            const nameErrors: Predicate[] = [
+                longerThan
+                    (configuration.userNameMinLength)
+                    ({
                         fieldName: 'name_',
                         error: validationError.namedUser.name_.longerThan,
-                    },
-                    name_,
-                ),
-                notDeliminatesWith(
-                    'left',
-                    [isNumber],
-                    [],
-                    {
+                    }),
+                notDeliminatesWith
+                    ('left')
+                    ([isNumber])
+                    ([])
+                    ({
                         fieldName: 'name_',
                         error: validationError.namedUser
                                               .name_
                                               .notDeliminatesWith,
-                    },
-                    name_,
-                ),
-                notEmpty(
-                    {
+                    }),
+                notEmpty
+                    ({
                         fieldName: 'name_',
                         error: validationError.namedUser.name_.notEmpty,
-                    },
-                    name_,
-                ),
-                shorterThan(
-                    configuration.userNameMaxLength,
-                    {
+                    }),
+                shorterThan
+                    (configuration.userNameMaxLength)
+                    ({
                         fieldName: 'name_',
                         error: validationError.namedUser.name_.shorterThan,
-                    },
-                    name_,
-                ),
-                simpleWith(
-                    ['-', '_'],
-                    {
+                    }),
+                simpleWith
+                    (['-', '_'])
+                    ({
                         fieldName: 'name_',
                         error: validationError.namedUser.name_.simpleWith,
-                    },
-                    name_,
-                ),
+                    }),
             ]
-            return clearErrors(
-                [ ...emailErrors, ...passwordErrors, ...nameErrors ]
-            )
+            const emailErrors__ = callEach<string, LabeledError | null>(emailErrors)(email)
+            const passwordErrors__ = callEach<string, LabeledError | null>(passwordErrors)(password)
+            const nameErrors__ = callEach<string, LabeledError | null>(nameErrors)(name_)
+            const errors_ = [ ...emailErrors__, ...passwordErrors__, ...nameErrors__ ]
+            return clearErrors(errors_)
     }
 }
 
