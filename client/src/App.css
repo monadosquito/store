@@ -32,3 +32,15 @@
 .root__valid-form {
     margin: auto;
 }
+.header {
+    background-color: lightblue;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+.link {
+    color: grey;
+}
+.link_act {
+    color: black;
+}

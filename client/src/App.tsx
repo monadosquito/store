@@ -1,10 +1,8 @@
-import { User, validate } from './server/src/core/user'
-
+import { Main } from './views/pages/main'
 import { SignUp } from './views/pages/sign-up'
 import { SignIn } from './views/pages/sign-in'
-import { SignOut } from './views/pages/sign-out'
 import './App.css';
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import {
     Route,
     RouterProvider,
@@ -14,27 +12,14 @@ import {
 
 
 const router = createBrowserRouter(createRoutesFromElements(
-    <Route path='/' element={<SignOut/>}>
+    <Route path='/' element={<Main/>}>
         <Route path='/sign-up' element={<SignUp/>} />
         <Route path='/sign-in' element={<SignIn/>} />
     </Route>
 ))
 
 
-function App() {
-    const initUser = {email: '', name_: '', password: ''}
-
-    // return (
-    //     <div className="root">
-    //         <Form<'user', '/sign-up', User>
-    //             validated='user'
-    //             endpoint='/sign-up'
-    //             initEnt={initUser}
-    //         />
-    //     </div>
-    // );
-    return <RouterProvider router={router} />
-}
+const App = () => <RouterProvider router={router} />
 
 
 export default App;

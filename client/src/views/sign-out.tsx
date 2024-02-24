@@ -1,5 +1,4 @@
-import { configuration } from '../../server/src/core/configuration'
-import { Outlet } from 'react-router-dom'
+import { configuration } from '../server/src/core/configuration'
 
 
 const SignOut = () => {
@@ -9,7 +8,6 @@ const SignOut = () => {
     return (
         <div>
             <button onClick={signOut} > Sign out </button>
-            <Outlet/>
         </div>
     )
 }
