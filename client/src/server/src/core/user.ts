@@ -72,7 +72,7 @@ type ValidationError = {
     },
 }
 
-type PasswordValidation = 'longerThan' | 'notEmpty'
+type PasswordValidation = 'includes' | 'longerThan' | 'notEmpty'
 
 type PasswordValidationError = {
     [V in Extract<Validation, PasswordValidation>]: string
@@ -119,7 +119,7 @@ const userEmail: EmailValidationError = {
     notDeliminatesWith:
         'User '
         + label.user.email
-        + ' must not start with a number and deliminate with a period.',
+        + ' must not start with a number and deliminate with the "." and "@" characters.',
     shorterThan:
         'User '
         + label.user.email
@@ -136,6 +136,10 @@ const userEmail: EmailValidationError = {
     ,
 }
 const userPassword: PasswordValidationError = {
+    includes:
+        'User '
+        + label.user.password
+        + ' must contain at least one of the 0-9, a-z characters',
     longerThan:
         'User '
         + label.user.password
@@ -187,32 +191,45 @@ const validationError: ValidationError = {
     },
 }
 
-const isLetter = (letter: string) => {
-    return (letter.match(/[A-Z]/gi)?.length ?? 0) === 1
+const isLowerCaseLetter = (letter: string) => {
+    return (letter.match(/[a-z]/g)?.length ?? 0) === 1
+}
+const isUpperCaseLetter = (letter: string) => {
+    return (letter.match(/[A-Z]/g)?.length ?? 0) === 1
 }
 const isNumber = (number: string) => {
-    return (number.match(/[1-9]/gi)?.length ?? 0) === 1
+    return (number.match(/[0-9]/g)?.length ?? 0) === 1
 }
 const simpleWith =
-    (characters: string[]) =>
+    (againstCharacters: string[]) =>
     (labeledError: LabeledError) =>
     (fieldValue: string): LabeledError | null => {
-    const simpleWith = [...fieldValue].every(
-        character => characters.some(againstCharacter => {
-            return againstCharacter === character
-                   || isLetter(character)
-                   || isNumber(character)
+    const characters = [ ...fieldValue ]
+    const simpleWith = characters.every(
+        c => againstCharacters.some(againstC => {
+            const charactersSimple = (
+                callEach<string, boolean>
+                    ([ isLowerCaseLetter, isUpperCaseLetter, isNumber ])
+                    (c)
+            ).includes(true)
+            return againstC === c || charactersSimple
         })
     )
     return simpleWith ? null : labeledError
 }
 
 const includes =
+    (predicates: CharacterPredicate[]) =>
     (characters: string) =>
     (labeledError: LabeledError) =>
     (fieldValue: string): LabeledError | null => {
-    const includesEach = [...characters].every(c => fieldValue.includes(c))
-    return includesEach ? null : labeledError
+    const includes = [...characters].every(
+        (c: string) => fieldValue.includes(c)
+    )
+    const predicatesSatisfied = predicates.every(
+        p => [...fieldValue].some(c => p(c))
+    )
+    return includes && predicatesSatisfied ? null : labeledError
 }
 
 const longerThan =
@@ -263,6 +280,7 @@ const validate = (user: Entity): LabeledError[] => {
     const { password, email } = user
     const emailPredicates: Predicate[] = [
             includes
+                ([])
                 ('@')
                 ({
                     fieldName: 'email',
@@ -277,7 +295,7 @@ const validate = (user: Entity): LabeledError[] => {
             notDeliminatesWith
                 ('left')
                 ([isNumber])
-                (['.'])
+                (['.', '@'])
                 ({
                     fieldName: 'email',
                     error: validationError.user.email.notDeliminatesWith,
@@ -285,7 +303,7 @@ const validate = (user: Entity): LabeledError[] => {
             notDeliminatesWith
                 ('right')
                 ([])
-                (['.'])
+                (['.', '@'])
                 ({
                     fieldName: 'email',
                     error: validationError.user.email.notDeliminatesWith,
@@ -309,6 +327,13 @@ const validate = (user: Entity): LabeledError[] => {
                 }),
         ]
     const passwordPredicates: Predicate[] = [
+            includes
+                ([isLowerCaseLetter, isUpperCaseLetter, isNumber])
+                ('')
+                ({
+                    fieldName: 'password',
+                    error: validationError.user.password.includes,
+                }),
             longerThan
                 (configuration.userPasswordMinLength)
                 ({
