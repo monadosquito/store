@@ -4,7 +4,7 @@ type Configuration = {
     userEmailMaxLength: 320,
     userNameMinLength: 3,
     userNameMaxLength: 20,
-    userPasswordMinLength: 8,
+    userPasswordMinLength: 10,
 }
 
 const configuration: Configuration = {
@@ -13,7 +13,7 @@ const configuration: Configuration = {
     userEmailMaxLength: 320,
     userNameMinLength: 3,
     userNameMaxLength: 20,
-    userPasswordMinLength: 8,
+    userPasswordMinLength: 10,
 }
 
 

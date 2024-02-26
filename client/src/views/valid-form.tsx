@@ -1,4 +1,6 @@
-import { Endpoint, User, NamedUser, Entity, Label, LabeledError, label, validate } from '../server/src/core/user'
+import { Endpoint, User, NamedUser, Entity } from '../server/src/core/user'
+import { LabeledError, validate } from '../server/src/core/validation/validation'
+import { Label, label } from '../server/src/core/validation/label'
 
 import React, { useEffect, useState } from 'react'
 import { Form } from 'react-router-dom'
