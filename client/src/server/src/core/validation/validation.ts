@@ -14,7 +14,7 @@ import {
     shorterThan,
 } from './predicate'
 import { Entity } from '../user'
-import { callEach, clean, unique } from '../utility'
+import { callEach, clean, nub } from '../utility'
 
 
 
@@ -96,9 +96,9 @@ const validate = (user: Entity): LabeledError[] => {
                                (password)
     switch (user.tag) {
         case 'user':
-            return unique(
-                clean<LabeledError>([ ...emailErrors, ...passwordErrors ])
-            )
+            return nub(clean<LabeledError>(
+                [ ...emailErrors, ...passwordErrors ]
+            ))
         case 'namedUser':
             const { name_ } = user
             const namePredicates: Predicate[] = [
@@ -126,11 +126,9 @@ const validate = (user: Entity): LabeledError[] => {
             const nameErrors = callEach<string, LabeledError | null>
                                    (namePredicates)
                                    (name_)
-            return unique(
-                clean<LabeledError>(
-                    [ ...emailErrors, ...passwordErrors, ...nameErrors ]
-                )
-            )
+            return nub(clean<LabeledError>(
+                [ ...emailErrors, ...passwordErrors, ...nameErrors ]
+            ))
     }
 }
 

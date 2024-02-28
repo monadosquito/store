@@ -9,7 +9,7 @@ const callEach =
 const clean = <A>(xs: Maybe<A>[]): A[] =>
     xs.flatMap((x: Maybe<A>) => x !== null ? [x] : [])
 
-const unique = <A>(xs: A[]): A[] => {
+const nub = <A>(xs: A[]): A[] => {
     const s = new Set<string>()
     xs.map((x: A) => s.add(JSON.stringify(x)))
     return [ ...s ].map((x: string) => JSON.parse(x))
@@ -17,4 +17,4 @@ const unique = <A>(xs: A[]): A[] => {
 
 
 export type { Maybe }
-export { callEach, clean, unique }
+export { callEach, clean, nub }
