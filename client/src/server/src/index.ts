@@ -3,8 +3,9 @@ import { PostgresqlRepo } from 'adapter/postgresqlRepo'
 
 import { Client, QueryConfig } from 'pg'
 
-
 import { validate } from 'core/validation/validation'
+
+
 const repo = new PostgresqlRepo({ user: 'postgres' })
 repo.connect()
 const drv = new ExpressDriver<Client>(repo)

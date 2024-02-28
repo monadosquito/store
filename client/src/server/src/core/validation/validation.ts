@@ -102,37 +102,26 @@ const validate = (user: Entity): LabeledError[] => {
         case 'namedUser':
             const { name_ } = user
             const namePredicates: Predicate[] = [
-                longerThan
-                    (configuration.userNameMinLength)
-                    ({
-                        fieldName: 'name_',
-                        error: allErrors.namedUser.name_.longerThan,
-                    }),
-                notDeliminatesWith
-                    ('left')
-                    ([isNumber])
-                    ([])
-                    ({
-                        fieldName: 'name_',
-                        error: allErrors.namedUser.name_.deliminatesWith,
-                    }),
-                notEmpty
-                    ({
-                        fieldName: 'name_',
-                        error: allErrors.namedUser.name_.empty,
-                    }),
-                shorterThan
-                    (configuration.userNameMaxLength)
-                    ({
-                        fieldName: 'name_',
-                        error: allErrors.namedUser.name_.shorterThan,
-                    }),
-                simpleWith
-                    (['-', '_'])
-                    ({
-                        fieldName: 'name_',
-                        error: allErrors.namedUser.name_.notSimpleWith,
-                    }),
+                longerThan (configuration.userNameMinLength) ({
+                    fieldName: 'name_',
+                    error: allErrors.namedUser.name_.longerThan,
+                }),
+                notDeliminatesWith ('left') ([isNumber]) ([]) ({
+                    fieldName: 'name_',
+                    error: allErrors.namedUser.name_.deliminatesWith,
+                }),
+                notEmpty ({
+                    fieldName: 'name_',
+                    error: allErrors.namedUser.name_.empty,
+                }),
+                shorterThan (configuration.userNameMaxLength) ({
+                    fieldName: 'name_',
+                    error: allErrors.namedUser.name_.shorterThan,
+                }),
+                simpleWith (['-', '_']) ({
+                    fieldName: 'name_',
+                    error: allErrors.namedUser.name_.notSimpleWith,
+                }),
             ]
             const nameErrors = callEach<string, LabeledError | null>
                                    (namePredicates)
