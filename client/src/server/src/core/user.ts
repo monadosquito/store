@@ -20,10 +20,6 @@ type UserSession = {
     userId: number
 }
 
-// const clearErrors = (errors: (LabeledError | null)[]): LabeledError[] =>
-//     [ ...new Set(errors) ].flatMap(
-//         (e: LabeledError | null) => e !== null ? [e] : []
-//     )
 
 export type {
     Endpoint,

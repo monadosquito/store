@@ -30,7 +30,9 @@ class ExpressServer<Conn> implements IServer {
                     res.status(422).send()
                     return
                 }
-                const userExists = await this.repository.doesUserExist(user)
+                const userExists = await this.repository.doesUserExist(
+                    user.email
+                )
                 if (userExists) {
                     res.status(409).send()
                     return
@@ -49,7 +51,6 @@ class ExpressServer<Conn> implements IServer {
             const { email, password } = req.body
             await this.repository.connect()
             const user = await this.repository.selectUser(email)
-            console.log(user)
             if (!user) {
                 res.status(404).send()
                 return

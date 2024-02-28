@@ -39,7 +39,7 @@ class PostgresqlRepo implements IRepository<Client> {
             )
         }
     }
-    async doesUserExist({ email }: User) {
+    async doesUserExist(email: string) {
         const qryRes = await this.client?.query(
             'SELECT EXISTS (SELECT FROM user_ WHERE email = $1)',
             [ email ]
