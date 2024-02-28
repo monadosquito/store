@@ -4,12 +4,12 @@ import {
     IdUser,
     Entity,
     UserSession,
-    validate,
-    isValid,
 } from 'core/user'
 import { IRepository } from 'core/port/repository'
 
 import { Client, QueryConfig, QueryResult } from 'pg'
+
+import { isValid } from 'core/validation/validation'
 
 
 class PostgresqlRepo implements IRepository<Client> {

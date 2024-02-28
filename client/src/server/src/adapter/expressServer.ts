@@ -1,5 +1,5 @@
 import { configuration } from 'core/configuration'
-import { NamedUser, UserSession, isValid } from 'core/user'
+import { NamedUser, UserSession } from 'core/user'
 import { IServer } from 'core/port/server'
 
 import { Application, Request, Response } from 'express'
@@ -7,6 +7,7 @@ import { v4 } from 'uuid'
 import { hash, compare } from 'bcrypt'
 
 import { IRepository } from 'core/port/repository'
+import { isValid } from 'core/validation/validation'
 
 
 class ExpressServer<Conn> implements IServer {
@@ -53,15 +54,15 @@ class ExpressServer<Conn> implements IServer {
                 res.status(404).send()
                 return
             }
-            const { id, password: passwordHash } = user
+            const { id: userId, password: passwordHash } = user
             const passwordsMatch = await compare(password, passwordHash)
             if (!passwordsMatch) {
                 res.status(403).send()
                 return
             }
-            await this.repository.deleteUserSessionByUserId(id)
+            await this.repository.deleteUserSessionByUserId(userId)
             const sessionId = v4()
-            await this.repository.addUserSession({ sessionId, id })
+            await this.repository.addUserSession({ sessionId, userId })
             res.cookie('sessId', sessionId).status(204).send()
         })
     }
