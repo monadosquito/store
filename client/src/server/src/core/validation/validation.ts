@@ -21,52 +21,34 @@ import { callEach, clean, nub } from '../utility'
 const validate = (user: Entity): LabeledError[] => {
     const { password, email } = user
     const emailPredicates: Predicate[] = [
-            includes
-                ([])
-                ('@')
-                ({
-                    fieldName: 'email',
-                    error: allErrors.user.email.notIncludes,
-                }),
-            longerThan
-                (configuration.userEmailMinLength)
-                ({
-                    fieldName: 'email',
-                    error: allErrors.user.email.longerThan,
-                }),
-            notDeliminatesWith
-                ('left')
-                ([isNumber])
-                (['.', '@'])
-                ({
-                    fieldName: 'email',
-                    error: allErrors.user.email.deliminatesWith,
-                }),
-            notDeliminatesWith
-                ('right')
-                ([])
-                (['.', '@'])
-                ({
-                    fieldName: 'email',
-                    error: allErrors.user.email.deliminatesWith,
-                }),
-            notEmpty
-                ({
-                    fieldName: 'email',
-                    error: allErrors.user.email.empty,
-                }),
-            shorterThan
-                (configuration.userEmailMaxLength)
-                ({
-                    fieldName: 'email',
-                    error: allErrors.user.email.shorterThan,
-                }),
-            simpleWith
-                ([ ..."!#$%&'*+-./=?^_`{|}~@" ])
-                ({
-                    fieldName: 'email',
-                    error: allErrors.user.email.notSimpleWith,
-                }),
+            includes ([]) ('@') ({
+                fieldName: 'email',
+                error: allErrors.user.email.notIncludes,
+            }),
+            longerThan (configuration.userEmailMinLength) ({
+                fieldName: 'email',
+                error: allErrors.user.email.longerThan,
+            }),
+            notDeliminatesWith ('left') ([isNumber]) (['.', '@']) ({
+                fieldName: 'email',
+                error: allErrors.user.email.deliminatesWith,
+            }),
+            notDeliminatesWith ('right') ([]) (['.', '@']) ({
+                fieldName: 'email',
+                error: allErrors.user.email.deliminatesWith,
+            }),
+            notEmpty ({
+                fieldName: 'email',
+                error: allErrors.user.email.empty,
+            }),
+            shorterThan (configuration.userEmailMaxLength) ({
+                fieldName: 'email',
+                error: allErrors.user.email.shorterThan,
+            }),
+            simpleWith ([ ..."!#$%&'*+-./=?^_`{|}~@" ]) ({
+                fieldName: 'email',
+                error: allErrors.user.email.notSimpleWith,
+            }),
         ]
     const passwordPredicates: Predicate[] = [
             includes

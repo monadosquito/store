@@ -6,8 +6,10 @@ const callEach =
     (x: I): O[] =>
     fs.map((f: any) => f(x))
 
+const maybeToArray = <A>(x: Maybe<A>): A[] => x !== null ? [x] : []
+
 const clean = <A>(xs: Maybe<A>[]): A[] =>
-    xs.flatMap((x: Maybe<A>) => x !== null ? [x] : [])
+    xs.flatMap((x: Maybe<A>) => maybeToArray(x))
 
 const nub = <A>(xs: A[]): A[] => {
     const s = new Set<string>()
