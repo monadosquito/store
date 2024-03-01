@@ -17,6 +17,8 @@ const SignUp = () =>
             leg="Fill in new user's data"
             subBtnLab='Sign up'
             initEnt={initUser}
+            validEnpoint='/user'
+            ks={['email']}
         />
     </main>
 

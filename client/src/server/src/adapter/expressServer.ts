@@ -79,6 +79,16 @@ class ExpressServer<Conn> implements IServer {
             }
         )
     }
+    isEmailFree() {
+        this.app.get('/user', async (req: Request, res: Response) => {
+            const email = req.query.email as string
+            if (!email) {
+                res.status(400).send()
+            }
+            const userExists = await this.repository.doesUserExist(email)
+            res.status(200).send(JSON.stringify({ emailFree: !userExists }))
+        })
+    }
 }
 
 

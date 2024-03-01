@@ -1,12 +1,21 @@
+import { EffectfulError } from './error'
 import { Maybe, callEach } from '../utility'
 
 
 type CharacterPredicate = (character: string) => boolean
+
 type Predicate = (fieldValue: string) => Maybe<LabeledError>
+
 type Direction = 'left' | 'right'
+
 type LabeledError = {
     fieldName: string
     error: string
+}
+
+type OutsideError = Pick<LabeledError, 'fieldName'> & {
+    error: EffectfulError
+    validated: boolean
 }
 
 
@@ -90,7 +99,7 @@ const simpleWith =
     return simpleWith ? null : labeledError
 }
 
-export type { LabeledError, Predicate }
+export type { LabeledError, Predicate, OutsideError }
 export {
     includes,
     isNumber,

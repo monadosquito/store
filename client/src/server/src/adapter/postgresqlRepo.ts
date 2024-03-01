@@ -30,7 +30,7 @@ class PostgresqlRepo implements IRepository<Client> {
     }
     addUser(namedUser: NamedUser) {
         const user: Entity = { tag: 'namedUser', ...namedUser }
-        const userIsValid = isValid(user)
+        const userIsValid = isValid([])(user)
         if (userIsValid) {
             const { name_, password, email } = user
             this.client?.query(

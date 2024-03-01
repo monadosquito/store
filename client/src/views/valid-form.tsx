@@ -1,16 +1,20 @@
 import { Endpoint, User, NamedUser, Entity } from '../server/src/core/user'
 import { LabeledError, validate } from '../server/src/core/validation/validation'
 import { Label, label } from '../server/src/core/validation/label'
+import { OutsideError } from '../server/src/core/validation/predicate'
+import { appendParams } from '../server/src/core/utility'
 
 import React, { useEffect, useState } from 'react'
 import { Form } from 'react-router-dom'
 
 
 type FormProps = {
-    endpoint: Endpoint,
-    leg: string,
-    subBtnLab: string,
-    initEnt: Entity,
+    endpoint: Endpoint
+    leg: string
+    subBtnLab: string
+    initEnt: Entity
+    validEnpoint?: string
+    ks: (keyof Entity)[]
 }
 
 const valStat = (validErrs: LabeledError[]) => {
@@ -57,8 +61,12 @@ function field<L extends keyof Label, F extends keyof Label[L]>(
     )
 }
 
+const emailNotFreeErr = (validated: boolean): OutsideError =>
+    ({ fieldName: 'email', error: 'notFree', validated })
+    
+
 const ValidForm: React.FC<FormProps> = (
-    { endpoint, leg, subBtnLab, initEnt }
+    { endpoint, validEnpoint, ks, leg, subBtnLab, initEnt }
 ) => {
     const [ ent, setEnt ] = useState(initEnt)
     const [ submitted, setSubmitted ] = useState(false)
@@ -76,6 +84,18 @@ const ValidForm: React.FC<FormProps> = (
         }
         setSubmitted(false)
     }, [ submitted ])
+    useEffect(() => {
+        const outerValidFieldVals = ks.map(k => ent[k])
+        const outerValidFieldValsValid = outerValidFieldVals.every(v => v)
+        if (validEnpoint && outerValidFieldValsValid) {
+            const url = appendParams(ks)(ent)(validEnpoint)
+            fetch(url)
+            .then((resp) => resp.json())
+            .then(({ emailFree }: { emailFree: boolean }) => {
+                setValidErrs(validate([emailNotFreeErr(emailFree)])(ent))
+            })
+        }
+    }, [ ent ])
 
     const handleInput = (
             fieldName: string,
@@ -86,7 +106,7 @@ const ValidForm: React.FC<FormProps> = (
         handleValidErrs(nextEnt)
     }
     const handleValidErrs = (ent: Entity) => {
-        const validErrs = validate(ent)
+        const validErrs = validate([])(ent)
         setValidErrs(validErrs)
     }
 

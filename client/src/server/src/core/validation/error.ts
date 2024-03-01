@@ -8,6 +8,7 @@ type Error_ = 'notIncludes'
             | 'deliminatesWith'
             | 'shorterThan'
             | 'notSimpleWith'
+            | 'notFree'
 
 type Errors<E> = {
     [V in Extract<Error_, E>]: string
@@ -19,7 +20,7 @@ type UserPasswordError
     =
     Extract<Error_, 'empty' | 'notIncludes' | 'shorterThan'>
 
-type UserNameError = Exclude<Error_, 'notIncludes'>
+type UserNameError = Exclude<Error_, 'notIncludes' | 'notFree'>
 
 type AllErrors = {
     user: {
@@ -32,6 +33,8 @@ type AllErrors = {
         name_: Errors<UserNameError>
     },
 }
+
+type EffectfulError = Extract<Error_, 'notFree'>
 
 const userEmail: Errors<UserEmailError> = {
     deliminatesWith:
@@ -64,6 +67,7 @@ const userEmail: Errors<UserEmailError> = {
         + configuration.userEmailMaxLength
         + ' characters long.'
     ,
+    notFree: 'User ' + label.user.email + ' is already occupied',
 }
 const userPassword: Errors<UserPasswordError> = {
     empty: 'User ' + label.user.password + ' must not be empty.',
@@ -119,5 +123,5 @@ const allErrors: AllErrors = {
 }
 
 
-export type { Error_, Errors, AllErrors }
+export type { Error_, Errors, AllErrors, EffectfulError }
 export { allErrors }

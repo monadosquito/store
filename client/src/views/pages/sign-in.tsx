@@ -12,6 +12,7 @@ const SignIn = () =>
             leg="Fill in user's data"
             subBtnLab='Sign in'
             initEnt={initUser}
+            ks={['email']}
         />
     </main>
 

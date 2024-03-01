@@ -17,6 +17,11 @@ const nub = <A>(xs: A[]): A[] => {
     return [ ...s ].map((x: string) => JSON.parse(x))
 }
 
+const appendParams =
+    <A extends Record<string, string>>(ks: string[]) => (e: A) =>
+    (url: string): string =>
+    ks.reduce((url, k) => url + k + '=' + e[k], url + '?')
+
 
 export type { Maybe }
-export { callEach, clean, nub }
+export { callEach, clean, nub, appendParams }
