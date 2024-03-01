@@ -43,6 +43,7 @@ type Test = ( fieldName: string, ev: React.ChangeEvent<HTMLInputElement>) => voi
 function field<L extends keyof Label, F extends keyof Label[L]>(
     handleInput: Test,
     isValid: boolean,
+    hidden: boolean,
     entityName: L,
     fieldName: F,
 ) {
@@ -56,6 +57,7 @@ function field<L extends keyof Label, F extends keyof Label[L]>(
                 onChange={ev => handleInput(fieldName as string, ev)}
                 placeholder={label[entityName][fieldName] as string}
                 key={fieldName as string}
+                type={hidden ? 'password' : ''}
             />
         </label>
     )
@@ -128,12 +130,14 @@ const ValidForm: React.FC<FormProps> = (
                                 ? field(
                                     handleInput,
                                     isValid,
+                                    fieldName === 'password' ? true : false,
                                     initEnt.tag,
                                     fieldName as keyof User,
                                 )
                                 : field(
                                     handleInput,
                                     isValid,
+                                    fieldName === 'password' ? true : false,
                                     initEnt.tag,
                                     fieldName as keyof NamedUser,
                                 )
