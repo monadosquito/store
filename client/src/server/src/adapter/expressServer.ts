@@ -9,6 +9,8 @@ import { hash, compare } from 'bcrypt'
 import { IRepository } from 'core/port/repository'
 import { isValid } from 'core/validation/validation'
 
+import { createTransport } from 'nodemailer'
+
 
 class ExpressServer<Conn> implements IServer {
     app: Application
@@ -39,9 +41,26 @@ class ExpressServer<Conn> implements IServer {
                 }
                 const { password } = user
                 const passwordHash = await hash(password, 10)
-                await this.repository.addUser(
-                    {...user, password: passwordHash }
+                const id = await this.repository.addUser(
+                    { ...user, password: passwordHash }
                 )
+                const verCode = v4()
+                this.repository.addUserVerification(verCode, id)
+                const mailTrans = createTransport({
+                    service: process.env.EMAIL_SERVICE,
+                    auth: {
+                        user: process.env.EMAIL_ADDRESS,
+                        pass: process.env.EMAIL_PASSWORD,
+                    },
+                })
+                const confUrl = new URL('http://localhost:8000/user/confirm')
+                confUrl.searchParams.set('code', verCode)
+                const mailOpts = {
+                    to: user.email,
+                    subject: 'Store: E-Mail Confirmation',
+                    html: `<a href=${confUrl}>Confirm</a>`,
+                }
+                mailTrans.sendMail(mailOpts)
                 res.status(201).send()
             }
         )
@@ -87,6 +106,13 @@ class ExpressServer<Conn> implements IServer {
             }
             const userExists = await this.repository.doesUserExist(email)
             res.status(200).send(JSON.stringify({ emailFree: !userExists }))
+        })
+    }
+    confirmUserEmail() {
+        this.app.get('/user/confirm', async (req, resp) => {
+            const code = req.query.code as string
+            this.repository.confirmUserEmail(code)
+            resp.send()
         })
     }
 }

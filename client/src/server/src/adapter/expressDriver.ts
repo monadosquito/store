@@ -60,6 +60,7 @@ class ExpressDriver<Conn> implements IDriver<ExpressMid> {
         srv.signIn()
         srv.signOut()
         srv.isEmailFree()
+        srv.confirmUserEmail()
 
         app.use(this.authenticate)
         app.listen(8000)

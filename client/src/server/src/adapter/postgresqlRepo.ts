@@ -28,16 +28,19 @@ class PostgresqlRepo implements IRepository<Client> {
     end() {
         this.client?.end()
     }
-    addUser(namedUser: NamedUser) {
+    async addUser(namedUser: NamedUser): Promise<number | undefined> {
         const user: Entity = { tag: 'namedUser', ...namedUser }
         const userIsValid = isValid([])(user)
-        if (userIsValid) {
-            const { name_, password, email } = user
-            this.client?.query(
-                'INSERT INTO user_ (name, password, email) VALUES ($1, $2, $3)',
-                [ name_, password, email ]
-            )
+        if (!userIsValid) {
+            return undefined
         }
+        const { name_, password, email } = user
+        const res = await this.client?.query(
+            'INSERT INTO user_ (name, password, email) VALUES ($1, $2, $3) \
+                RETURNING id',
+            [ name_, password, email ]
+        )
+        return res?.rows[0]?.id
     }
     async doesUserExist(email: string) {
         const qryRes = await this.client?.query(
@@ -76,6 +79,21 @@ class PostgresqlRepo implements IRepository<Client> {
         this.client?.query(
             'DELETE FROM user_session WHERE user_id = $1',
             [ userId ]
+        )
+    }
+    addUserVerification(code: string, userId: number): void {
+        this.client?.query(
+            'INSERT INTO user_ver VALUES ($1, $2)', [ code, userId ]
+        )
+    }
+    async confirmUserEmail(code: string): Promise<void> {
+        const qryRes = await this.client?.query(
+            'SELECT user_id FROM user_ver WHERE code = $1',
+            [ code ],
+        )
+        const userId = qryRes?.rows[0]?.user_id
+        this.client?.query(
+            'UPDATE user_ SET conf = TRUE WHERE id = $1', [ userId ]
         )
     }
 }

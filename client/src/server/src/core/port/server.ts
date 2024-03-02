@@ -5,6 +5,7 @@ interface IServer {
     signIn: () => void
     signOut: () => void
     isEmailFree: () => void
+    confirmUserEmail: () => void
 }
 
 
