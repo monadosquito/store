@@ -41,10 +41,8 @@ class ExpressDriver<Conn> implements IDriver<ExpressMid> {
                 return
             } 
             await this.repository.connect()
-            const userSessExists = await this.repository
-                                             .doesUserSessionExist(sessId)
-            console.log(userSessExists)
-            if (!userSessExists) {
+            const userId = await this.repository.getUserSession(sessId)
+            if (!userId) {
                 res.status(401).send()
                 return
             }
@@ -56,13 +54,21 @@ class ExpressDriver<Conn> implements IDriver<ExpressMid> {
 
     run(port: number) {
         const srv = new ExpressServer(app, this.repository)
+        app.use(this.authenticate.bind(this))
         srv.signUp()
         srv.signIn()
         srv.signOut()
         srv.isEmailFree()
         srv.confirmUserEmail()
+        srv.getAllProductCards()
+        srv.getProductCard()
+        srv.addProductCard()
+        srv.editProductCard()
+        srv.deleteProductCard()
+        srv.serveFiles()
+        srv.deleteProductCard()
+        srv.deleteProductCardImage()
 
-        app.use(this.authenticate)
         app.listen(8000)
     }
 }

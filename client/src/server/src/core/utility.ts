@@ -1,5 +1,9 @@
 type Maybe<A> = A | null
 
+type Ided<A> = A & {
+    id: number
+}
+
 
 const callEach =
     <I, O>(fs: ((x: I) => O)[]) =>
@@ -23,5 +27,5 @@ const appendParams =
     ks.reduce((url, k) => url + k + '=' + e[k], url + '?')
 
 
-export type { Maybe }
+export type { Maybe, Ided }
 export { callEach, clean, nub, appendParams }

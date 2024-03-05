@@ -1,3 +1,6 @@
+import { IRepository } from 'core/port/repository'
+
+
 interface IServer {
     repository: IRepository
 
@@ -6,6 +9,12 @@ interface IServer {
     signOut: () => void
     isEmailFree: () => void
     confirmUserEmail: () => void
+    getAllProductCards: () => void
+    getProductCard: () => void
+    addProductCard: () => void
+    editProductCard: () => void
+    deleteProductCard: () => void
+    serveFiles: () => void
 }
 
 

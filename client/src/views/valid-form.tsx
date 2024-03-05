@@ -1,4 +1,5 @@
 import { Endpoint, User, NamedUser, Entity } from '../server/src/core/user'
+import { ProductCard } from '../server/src/core/product-card'
 import { LabeledError, validate } from '../server/src/core/validation/validation'
 import { Label, label } from '../server/src/core/validation/label'
 import { OutsideError } from '../server/src/core/validation/predicate'
@@ -15,6 +16,7 @@ type FormProps = {
     initEnt: Entity
     validEnpoint?: string
     ks: (keyof Entity)[]
+    handle?: any
 }
 
 const valStat = (validErrs: LabeledError[]) => {
@@ -68,7 +70,7 @@ const emailNotFreeErr = (validated: boolean): OutsideError =>
     
 
 const ValidForm: React.FC<FormProps> = (
-    { endpoint, validEnpoint, ks, leg, subBtnLab, initEnt }
+    { endpoint, validEnpoint, ks, leg, subBtnLab, initEnt, handle }
 ) => {
     const [ ent, setEnt ] = useState(initEnt)
     const [ submitted, setSubmitted ] = useState(false)
@@ -81,6 +83,10 @@ const ValidForm: React.FC<FormProps> = (
                     method: 'POST',
                     body: JSON.stringify(ent),
                     headers: { 'Content-Type': 'application/json' },
+                }).then((resp: any) => {
+                    if (handle && resp.ok) {
+                        resp.json().then(handle)
+                    }
                 })
             }
         }

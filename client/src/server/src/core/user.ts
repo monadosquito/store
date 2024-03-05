@@ -1,4 +1,4 @@
-type Endpoint = '/sign-up' | '/sign-in'
+type Endpoint = '/sign-up' | '/sign-in' | '/product/new'
 
 type User = {
     password: string
@@ -10,7 +10,6 @@ type NamedUser = {
 } & User
 
 type Entity = User & { tag: 'user' } | NamedUser & { tag: 'namedUser' }
-
 
 type IdUser = User & { id: number }
 

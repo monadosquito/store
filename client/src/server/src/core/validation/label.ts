@@ -9,9 +9,15 @@ type NamedUserLabel = {
     name_: 'Name'
 }
 
+type ProductCardLabel = {
+    sellerId: 'Seller Id'
+    name_: 'Name'
+}
+
 type Label = {
     user: UserLabel
     namedUser: NamedUserLabel
+    productCard: ProductCardLabel
 }
 
 
@@ -23,6 +29,10 @@ const label: Label = {
     namedUser: {
         email: 'E-Mail',
         password: 'Password',
+        name_: 'Name',
+    },
+    productCard: {
+        sellerId: 'Seller Id',
         name_: 'Name',
     },
 }

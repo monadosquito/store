@@ -5,6 +5,12 @@ type Configuration = {
     userNameMinLength: 3,
     userNameMaxLength: 20,
     userPasswordMinLength: 10,
+    imagesUrl: '/img',
+    noImageName: 'no-img',
+    imageWidth: '40',
+    imageHeight: '40',
+    mainImageWidth: '80',
+    mainImageHeight: '80',
 }
 
 const configuration: Configuration = {
@@ -14,6 +20,12 @@ const configuration: Configuration = {
     userNameMinLength: 3,
     userNameMaxLength: 20,
     userPasswordMinLength: 10,
+    imagesUrl: '/img',
+    noImageName: 'no-img',
+    imageWidth: '40',
+    imageHeight: '40',
+    mainImageWidth: '80',
+    mainImageHeight: '80',
 }
 
 

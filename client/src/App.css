@@ -35,7 +35,13 @@
 .header {
     background-color: lightblue;
     display: flex;
-    justify-content: flex-end;
+    justify-content: space-between;
+}
+.header__links {
+    padding: 0;
+}
+.header__sub {
+    display: flex;
     align-items: center;
 }
 .link {
